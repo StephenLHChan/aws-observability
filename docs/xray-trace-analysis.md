@@ -91,6 +91,22 @@ This document provides a comprehensive analysis of X-Ray trace results for vario
 
 ![X-Ray Trace Analysis](img-6.png)
 
+### Scenario 10: Full Integration with SNS Passthrough
+
+**Configuration:**
+
+- API Gateway: Active tracing enabled
+- Producer Lambda: IAM policy configured
+- Producer Lambda: Active tracing enabled
+- SNS: Tracing set to Passthrough
+- Consumer Lambda: IAM policy configured
+- Consumer Lambda: Active tracing enabled
+
+**Analysis:**
+This scenario demonstrates the impact of SNS passthrough tracing while maintaining active tracing on other components.
+
+![X-Ray Trace Analysis](img-7.png)
+
 ## Conclusion
 
 This analysis demonstrates the impact of different tracing configurations across various AWS services. The scenarios progress from basic API Gateway tracing to complex multi-service integrations, showing how different tracing settings affect the visibility of service interactions and performance metrics.

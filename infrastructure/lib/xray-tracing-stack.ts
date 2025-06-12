@@ -32,7 +32,7 @@ export class XRayTracingStack extends cdk.Stack {
       code: lambda.Code.fromAsset(
         path.join(__dirname, "../../src/functions/producer/dist")
       ),
-      // tracing: lambda.Tracing.ACTIVE,
+      tracing: lambda.Tracing.ACTIVE,
       environment: {
         TOPIC_ARN: topic.topicArn,
       },
