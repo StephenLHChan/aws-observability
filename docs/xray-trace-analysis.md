@@ -91,6 +91,10 @@ This document provides a comprehensive analysis of X-Ray trace results for vario
 
 ![X-Ray Trace Analysis](img-6.png)
 
+#### Powertool
+
+![X-Ray Trace Analysis](img-9.png)
+
 ### Scenario 10: Full Integration with SNS Passthrough
 
 **Configuration:**
@@ -106,6 +110,10 @@ This document provides a comprehensive analysis of X-Ray trace results for vario
 This scenario demonstrates the impact of SNS passthrough tracing while maintaining active tracing on other components.
 
 ![X-Ray Trace Analysis](img-7.png)
+
+#### Powertool
+
+![X-Ray Trace Analysis](img-8.png)
 
 ## Conclusion
 

@@ -8,34 +8,43 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 import * as path from "path";
 
-export class XRayTracingStack extends cdk.Stack {
+export class PowertoolTracingStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     // Create SNS Topic
-    const topic = new sns.Topic(this, "XRayTracingTopic", {
+    const topic = new sns.Topic(this, "PowertoolTracingTopic", {
       tracingConfig: sns.TracingConfig.PASS_THROUGH,
     });
 
     // Create SQS Queue
-    const queue = new sqs.Queue(this, "XRayTracingQueue", {
+    const queue = new sqs.Queue(this, "PowertoolTracingQueue", {
       visibilityTimeout: cdk.Duration.seconds(300),
     });
 
     // Subscribe SQS to SNS
     topic.addSubscription(new subscriptions.SqsSubscription(queue));
 
+    // Get the latest Powertools layer version for Python
+    const powertoolsLayer = lambda.LayerVersion.fromLayerVersionArn(
+      this,
+      "PowertoolsLayer",
+      `arn:aws:lambda:${this.region}:017000801446:layer:AWSLambdaPowertoolsPythonV2:78`
+    );
+
     // Create Lambda functions
-    const producerLambda = new lambda.Function(this, "ProducerFunction", {
-      runtime: lambda.Runtime.NODEJS_18_X,
-      handler: "index.handler",
-      code: lambda.Code.fromAsset(
-        path.join(__dirname, "../../src/functions/x-ray/producer/dist")
-      ),
-      tracing: lambda.Tracing.ACTIVE,
+    const producerLambda = new lambda.Function(this, "ProducerPythonFunction", {
+      runtime: lambda.Runtime.PYTHON_3_12,
+      handler: "app.handler",
+      code: lambda.Code.fromAsset("src/functions/powertool/producer"),
+      tracing: lambda.Tracing.PASS_THROUGH,
       environment: {
         TOPIC_ARN: topic.topicArn,
+        POWERTOOLS_SERVICE_NAME: "producer-service",
+        POWERTOOLS_METRICS_NAMESPACE: "PowertoolTracing",
+        LOG_LEVEL: "INFO",
       },
+      layers: [powertoolsLayer],
     });
 
     // Add X-Ray write access to producer Lambda
@@ -68,8 +77,8 @@ export class XRayTracingStack extends cdk.Stack {
     });
 
     // Create API Gateway
-    const api = new apigateway.RestApi(this, "XRayTracingApi", {
-      restApiName: "XRay Tracing API",
+    const api = new apigateway.RestApi(this, "PowertoolTracingApi", {
+      restApiName: "Powertool Tracing API",
       deployOptions: {
         tracingEnabled: true,
       },
